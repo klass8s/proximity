@@ -1,0 +1,24 @@
+parameters:
+    'env(PROXIMITY_PROXY_CLASSES_DIR)': '%kernel.project_dir%/var/proxy'
+    'env(PROXIMITY_PROXY_NAMESPACE)': 'Proximity\Proxy'
+    proximity.proxy_classes_dir: '%env(PROXIMITY_PROXY_CLASSES_DIR)%'
+    proximity.proxy_namespace: '%env(PROXIMITY_PROXY_NAMESPACE)%'
+
+services:
+    _defaults:
+        autowire: true
+        autoconfigure: true
+
+    Proximity\ProxyFactory: ~
+
+    Proximity\ProxyStrategy\EvaluatingStrategy: ~
+
+    Proximity\ProxyStrategy\SaveToFileStrategy:
+        arguments:
+            $proxyClassesDirectory: '%proximity.proxy_classes_dir%'
+
+    Proximity\ProxyStrategy\ProxyStrategyInterface: '@Proximity\ProxyStrategy\EvaluatingStrategy'
+
+    Proximity\ProxyGenerator:
+        arguments:
+            $proxyClassesNamespace: '%proximity.proxy_namespace%'
