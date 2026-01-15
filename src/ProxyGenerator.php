@@ -147,6 +147,8 @@ final readonly class ProxyGenerator
             CODE;
 
         foreach (self::allPropertiesFromClassAndParents($reflectionClass) as $property) {
+            $isHookedProperty = self::isHookedProperty($property);
+
             if ($property->isReadOnly()) {
                 $propertyInitializationCode = <<<'PROPERTY_CODE'
                         $readonlyPropertySetterClosure->bindTo($this, '{CLASS}')->__invoke('{PROPERTY}');
@@ -161,15 +163,25 @@ final readonly class ProxyGenerator
             }
 
             if ($property->isPrivate()) {
-                $propertyInitializationCode = <<<'PROPERTY_CODE'
-                    $privatePropertySetterClosure->bindTo($this, '{CLASS}')->__invoke('{PROPERTY}');
-                    PROPERTY_CODE;
+                $propertyInitializationCode = $isHookedProperty
+                    ? <<<'PROPERTY_CODE'
+                        $readonlyPropertySetterClosure->bindTo($this, '{CLASS}')->__invoke('{PROPERTY}');
+                        PROPERTY_CODE
+                    : <<<'PROPERTY_CODE'
+                        $privatePropertySetterClosure->bindTo($this, '{CLASS}')->__invoke('{PROPERTY}');
+                        PROPERTY_CODE;
+
                 $propertyInitializationCode = strtr($propertyInitializationCode, [
                     '{PROPERTY}' => $property->name,
                     '{CLASS}' => $property->getDeclaringClass()->getName(),
                 ]);
                 $code = $code.PHP_EOL.$propertyInitializationCode;
 
+                continue;
+            }
+
+            if ($isHookedProperty) {
+                $code = $code.PHP_EOL.strtr('$this->{PROPERTY} = $object->{PROPERTY};', ['{PROPERTY}' => $property->name]);
                 continue;
             }
 
@@ -217,5 +229,17 @@ final readonly class ProxyGenerator
         } while ($reflectionClass);
 
         return $properties;
+    }
+
+    private static function isHookedProperty(\ReflectionProperty $property): bool
+    {
+        if (method_exists($property, 'hasHooks')) {
+            return $property->hasHooks();
+        }
+        if (method_exists($property, 'getHooks')) {
+            return [] !== $property->getHooks();
+        }
+
+        return false;
     }
 }
