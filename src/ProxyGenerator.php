@@ -147,7 +147,11 @@ final readonly class ProxyGenerator
             CODE;
 
         foreach (self::allPropertiesFromClassAndParents($reflectionClass) as $property) {
-            $isHookedProperty = self::isHookedProperty($property);
+            if ($property->hasHooks()) {
+                // If the hooked property is not private - it will be accessible without redefining
+                // If it's private - the proxy class does not need access to it
+                continue;
+            }
 
             if ($property->isReadOnly()) {
                 $propertyInitializationCode = <<<'PROPERTY_CODE'
@@ -163,13 +167,9 @@ final readonly class ProxyGenerator
             }
 
             if ($property->isPrivate()) {
-                $propertyInitializationCode = $isHookedProperty
-                    ? <<<'PROPERTY_CODE'
-                        $readonlyPropertySetterClosure->bindTo($this, '{CLASS}')->__invoke('{PROPERTY}');
-                        PROPERTY_CODE
-                    : <<<'PROPERTY_CODE'
-                        $privatePropertySetterClosure->bindTo($this, '{CLASS}')->__invoke('{PROPERTY}');
-                        PROPERTY_CODE;
+                $propertyInitializationCode = <<<'PROPERTY_CODE'
+                    $privatePropertySetterClosure->bindTo($this, '{CLASS}')->__invoke('{PROPERTY}');
+                    PROPERTY_CODE;
 
                 $propertyInitializationCode = strtr($propertyInitializationCode, [
                     '{PROPERTY}' => $property->name,
@@ -177,11 +177,6 @@ final readonly class ProxyGenerator
                 ]);
                 $code = $code.PHP_EOL.$propertyInitializationCode;
 
-                continue;
-            }
-
-            if ($isHookedProperty) {
-                $code = $code.PHP_EOL.strtr('$this->{PROPERTY} = $object->{PROPERTY};', ['{PROPERTY}' => $property->name]);
                 continue;
             }
 
@@ -229,17 +224,5 @@ final readonly class ProxyGenerator
         } while ($reflectionClass);
 
         return $properties;
-    }
-
-    private static function isHookedProperty(\ReflectionProperty $property): bool
-    {
-        if (method_exists($property, 'hasHooks')) {
-            return $property->hasHooks();
-        }
-        if (method_exists($property, 'getHooks')) {
-            return [] !== $property->getHooks();
-        }
-
-        return false;
     }
 }
