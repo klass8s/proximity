@@ -1,5 +1,7 @@
 # Create PHP proxy objects with ease
 
+📖 **Full documentation lives in [`docs/`](docs/index.md)** (published on the Tequila Platform website).
+
 ## Motivation
 This library is inspired by the brilliant
 [Ocramius/ProxyManager](https://github.com/Ocramius/ProxyManager) library.
