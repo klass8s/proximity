@@ -11,7 +11,10 @@ class ProximityBundle extends AbstractBundle
 {
     public function boot(): void
     {
-        $proxiesDir = $this->container->getParameter('proximity.proxy_classes_dir');
+        $proxiesDir = $this->container?->getParameter('proximity.proxy_classes_dir');
+        if (!is_string($proxiesDir) || '' === $proxiesDir) {
+            throw new \LogicException('The "proximity.proxy_classes_dir" parameter must be a non-empty string.');
+        }
         if (!file_exists($proxiesDir)) {
             mkdir($proxiesDir, 0o777, true);
         }
@@ -24,6 +27,9 @@ class ProximityBundle extends AbstractBundle
         $container->addCompilerPass(pass: new InterceptorsPass(), priority: 500);
     }
 
+    /**
+     * @param mixed[] $config
+     */
     public function loadExtension(array $config, ContainerConfigurator $container, ContainerBuilder $builder): void
     {
         $container->import('../../config/proximity.yaml');

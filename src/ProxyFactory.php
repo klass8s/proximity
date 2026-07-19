@@ -6,6 +6,7 @@ use Proximity\ProxyStrategy\ProxyStrategyInterface;
 
 final class ProxyFactory
 {
+    /** @var array<class-string, class-string> */
     private array $proxyClassesCache = [];
     public function __construct(
         private readonly ProxyGenerator $generator,
@@ -26,7 +27,7 @@ final class ProxyFactory
         $class = new \ReflectionObject($object);
         $proxyClass = $this->proxyClassesCache[$class->getName()] ?? null;
         if (null !== $proxyClass) {
-            return new $proxyClass($object, $options);
+            return $this->instantiate($proxyClass, $object, $options);
         }
 
         $generatedProxy = $this->generator->generate($class);
@@ -36,8 +37,25 @@ final class ProxyFactory
             $this->proxyStrategy->apply($generatedProxy);
         }
 
+        if (!class_exists($proxyClass, false)) {
+            throw new \LogicException(sprintf('The proxy strategy did not define the generated class "%s".', $proxyClass));
+        }
+
         $this->proxyClassesCache[$class->getName()] = $proxyClass;
 
-        return new $proxyClass($object, $options);
+        return $this->instantiate($proxyClass, $object, $options);
+    }
+
+    /**
+     * @param class-string $proxyClass
+     */
+    private function instantiate(string $proxyClass, object $object, ProxyOptions $options): ProxyInterface
+    {
+        $proxy = new $proxyClass($object, $options);
+        if (!$proxy instanceof ProxyInterface) {
+            throw new \LogicException(sprintf('The generated class "%s" does not implement "%s".', $proxyClass, ProxyInterface::class));
+        }
+
+        return $proxy;
     }
 }

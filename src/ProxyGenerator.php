@@ -10,12 +10,36 @@ use Nette\PhpGenerator\Printer;
 final readonly class ProxyGenerator
 {
     public const string DEFAULT_NAMESPACE = 'Proximity\Proxy';
+
+    private const string METHOD_CODE_TEMPLATE = <<<'CODE'
+        $methodName = '{METHOD}';
+        $_proximityArgs = func_get_args();
+        {ARGS_NAMED_MAP}
+        foreach ($this->proximityOptions->bodyInterceptorsForMethod($methodName) as $interceptor) {
+            $result = $interceptor->beforeMethodBody($this, $this->proximityOriginalObject, $methodName, $_proximityArgsNamedMap);
+            if ($result?->preventMethodBody) {
+                {RETURN_STATEMENT_BEFORE_BODY}
+            }
+        }
+
+        $returnValue = parent::{METHOD}(...$_proximityArgs);
+
+        $context = new InterceptionContext($returnValue);
+        foreach ($this->proximityOptions->resultInterceptorsForMethod($methodName) as $interceptor) {
+            $interceptor->afterMethodBody($this, $this->proximityOriginalObject, $methodName, $_proximityArgsNamedMap, $context);
+        }
+
+        {RETURN_STATEMENT_AFTER_BODY}
+        CODE;
     private Printer $printer;
     public function __construct(public string $proxyClassesNamespace = self::DEFAULT_NAMESPACE)
     {
         $this->printer = new Printer();
     }
 
+    /**
+     * @param \ReflectionClass<object> $reflectionClass
+     */
     public function generate(\ReflectionClass $reflectionClass): GeneratedProxy
     {
         $this->ensureClassCanBeProxied($reflectionClass);
@@ -48,6 +72,9 @@ final readonly class ProxyGenerator
         return new GeneratedProxy($fqcn, $code, $reflectionClass);
     }
 
+    /**
+     * @param \ReflectionClass<object> $reflectionClass
+     */
     private function generateMethods(\ReflectionClass $reflectionClass, ClassType $class): void
     {
         foreach ($reflectionClass->getMethods() as $method) {
@@ -89,32 +116,11 @@ final readonly class ProxyGenerator
             $argsNamedMapCode[] = strtr('$_proximityArgsNamedMap[\'{PARAM}\'] = ${PARAM};', ['{PARAM}' => $reflectionParam->name]);
         }
 
-        static $codeTemplate = <<<'CODE'
-            $methodName = '{METHOD}';
-            $_proximityArgs = func_get_args();
-            {ARGS_NAMED_MAP}
-            foreach ($this->proximityOptions->bodyInterceptorsForMethod($methodName) as $interceptor) {
-                $result = $interceptor->beforeMethodBody($this, $this->proximityOriginalObject, $methodName, $_proximityArgsNamedMap);
-                if ($result?->preventMethodBody) {
-                    {RETURN_STATEMENT_BEFORE_BODY}
-                }
-            }
-
-            $returnValue = parent::{METHOD}(...$_proximityArgs);
-
-            $context = new InterceptionContext($returnValue);
-            foreach ($this->proximityOptions->resultInterceptorsForMethod($methodName) as $interceptor) {
-                $interceptor->afterMethodBody($this, $this->proximityOriginalObject, $methodName, $_proximityArgsNamedMap, $context);
-            }
-
-            {RETURN_STATEMENT_AFTER_BODY}
-            CODE;
-
         $isVoid = 'void' === (string)$reflectionMethod->getReturnType();
         $returnStatementBeforeBody = $isVoid ? 'return;' : 'return $result->returnValue;';
         $returnStatementAfterBody = $isVoid ? 'return;' : 'return $context->returnValue;';
 
-        $code = strtr($codeTemplate, [
+        $code = strtr(self::METHOD_CODE_TEMPLATE, [
             '{METHOD}' => $reflectionMethod->getName(),
             '{RETURN_STATEMENT_BEFORE_BODY}' => $returnStatementBeforeBody,
             '{RETURN_STATEMENT_AFTER_BODY}' => $returnStatementAfterBody,
@@ -124,6 +130,9 @@ final readonly class ProxyGenerator
         $method->setBody($code);
     }
 
+    /**
+     * @param \ReflectionClass<object> $reflectionClass
+     */
     private function generateConstructor(\ReflectionClass $reflectionClass, ClassType $class): void
     {
         $method = $class->addMethod('__construct');
@@ -186,6 +195,9 @@ final readonly class ProxyGenerator
         $method->setBody($code);
     }
 
+    /**
+     * @param \ReflectionClass<object> $reflectionClass
+     */
     private function generateProperties(\ReflectionClass $reflectionClass, ClassType $class): void
     {
         $class
@@ -201,6 +213,9 @@ final readonly class ProxyGenerator
             ->setReadOnly();
     }
 
+    /**
+     * @param \ReflectionClass<object> $class
+     */
     private function ensureClassCanBeProxied(\ReflectionClass $class): void
     {
         if ($class->isFinal()) {
@@ -211,8 +226,9 @@ final readonly class ProxyGenerator
     }
 
     /**
-     * @param \ReflectionClass $reflectionClass
-     * @return \ReflectionProperty[]
+     * @param \ReflectionClass<object> $reflectionClass
+     *
+     * @return list<\ReflectionProperty>
      */
     private static function allPropertiesFromClassAndParents(\ReflectionClass $reflectionClass): array
     {

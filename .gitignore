@@ -3,4 +3,5 @@
 /.php-cs-fixer.cache
 /.idea/
 .phpunit.cache
+/var/
 /tools/*/vendor

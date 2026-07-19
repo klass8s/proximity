@@ -1,0 +1,7 @@
+parameters:
+    bootstrapFiles:
+        - %currentWorkingDirectory%/vendor/autoload.php
+    level: 10
+    paths:
+        - src
+    treatPhpDocTypesAsCertain: false

@@ -22,11 +22,22 @@
         "symfony/framework-bundle": ">=8.0",
         "symfony/http-kernel": ">=8.0",
         "symfony/dependency-injection": ">=8.0",
-        "symfony/config": ">=8.0"
+        "symfony/config": ">=8.0",
+        "symfony/yaml": ">=8.0"
     },
     "scripts": {
         "cs": "./tools/php-cs-fixer/vendor/bin/php-cs-fixer fix",
-        "cs-check": "./tools/php-cs-fixer/vendor/bin/php-cs-fixer check",
-        "tools-update": "composer update -d tools/php-cs-fixer --no-scripts"
+        "cs:check": "./tools/php-cs-fixer/vendor/bin/php-cs-fixer check",
+        "phpstan": "./tools/phpstan/vendor/bin/phpstan analyse",
+        "test": "./vendor/bin/phpunit",
+        "tools:update": "composer update -d tools/php-cs-fixer --no-scripts && composer update -d tools/phpstan --no-scripts"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^13.0"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Proximity\\Tests\\": "tests/"
+        }
     }
 }
