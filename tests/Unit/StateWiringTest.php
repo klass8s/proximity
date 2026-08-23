@@ -9,6 +9,7 @@ use Proximity\ProxyGenerator;
 use Proximity\ProxyStrategy\EvaluatingStrategy;
 use Proximity\Tests\Fixture\FakeCalculator;
 use Proximity\Tests\Fixture\FakeHookedGreeter;
+use Proximity\Tests\Fixture\FakeHookedTagHolder;
 use Proximity\Tests\Fixture\FakeReadonlyHolder;
 use Proximity\Tests\Fixture\FakeService;
 
@@ -102,6 +103,43 @@ final class StateWiringTest extends TestCase
 
         $original->name = 'petr';
         self::assertSame('hello, petr', $proxy->greeting);
+    }
+
+    public function testBackedHookedPropertySetBeforeProxyingIsCarriedOver(): void
+    {
+        $original = new FakeHookedTagHolder();
+        $original->setTag('pre-proxy-value');
+
+        $proxy = $this->factory->proxy($original);
+        self::assertInstanceOf(FakeHookedTagHolder::class, $proxy);
+
+        self::assertSame('pre-proxy-value', $proxy->tag);
+    }
+
+    public function testUninitializedBackedHookedPropertyKeepsItsGuardSemantics(): void
+    {
+        $original = new FakeHookedTagHolder();
+
+        $proxy = $this->factory->proxy($original);
+        self::assertInstanceOf(FakeHookedTagHolder::class, $proxy);
+
+        // The guard's own exception, not a typed-property initialization Error.
+        $this->expectException(\RuntimeException::class);
+        $this->expectExceptionMessage('Tag is not set yet.');
+        /** @phpstan-ignore expr.resultUnused */
+        $proxy->tag;
+    }
+
+    public function testBackedHookedPropertyDefaultValueSurvivesProxying(): void
+    {
+        $original = new FakeHookedTagHolder();
+        $proxy = $this->factory->proxy($original);
+        self::assertInstanceOf(FakeHookedTagHolder::class, $proxy);
+
+        self::assertSame([], $proxy->bag);
+
+        $proxy->setBag(['a' => 1]);
+        self::assertSame(['a' => 1], $proxy->bag);
     }
 
     public function testByReferenceParametersLoseReferenceSemanticsThroughTheProxy(): void

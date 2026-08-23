@@ -153,12 +153,35 @@ final readonly class ProxyGenerator
             $readonlyPropertySetterClosure = function (string $propName) use ($object) {
                 $this->$propName = $object->$propName;
             };
+            $hookedPropertyCarryClosure = function (string $class, string $propName) use ($object): void {
+                $property = new \ReflectionProperty($class, $propName);
+                if ($property->isInitialized($object)) {
+                    $property->setRawValue($this, $property->getRawValue($object));
+                }
+            };
             CODE;
 
         foreach (self::allPropertiesFromClassAndParents($reflectionClass) as $property) {
             if ($property->hasHooks()) {
-                // If the hooked property is not private - it will be accessible without redefining
-                // If it's private - the proxy class does not need access to it
+                if ($property->isVirtual()) {
+                    // A virtual hooked property has no backing store — the inherited hooks
+                    // compute it from other state, so there is nothing to carry over.
+                    continue;
+                }
+
+                // A backed hooked property cannot be bound by reference (PHP forbids references
+                // to hooked properties), so its pre-proxy backing value is copied over once,
+                // bypassing the hooks. Later writes to the original object do not reach the
+                // proxy — the proxy replaces the original from here on.
+                $propertyInitializationCode = <<<'PROPERTY_CODE'
+                    $hookedPropertyCarryClosure('{CLASS}', '{PROPERTY}');
+                    PROPERTY_CODE;
+                $propertyInitializationCode = strtr($propertyInitializationCode, [
+                    '{PROPERTY}' => $property->name,
+                    '{CLASS}' => $property->getDeclaringClass()->getName(),
+                ]);
+                $code = $code.PHP_EOL.$propertyInitializationCode;
+
                 continue;
             }
 
