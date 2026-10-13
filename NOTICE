@@ -1,0 +1,33 @@
+# Third-party notices
+
+`tequila/proximity` continues two open-source packages published under the MIT License:
+
+- `dealroadshow/proximity`
+- `dealroadshow/proximity-bundle`
+
+`tequila/proximity` merged the library and its Symfony bundle into one package, renamed it and
+extended it. Both packages declared the MIT License in their `composer.json` and shipped no license
+file of their own; the notice below is the MIT License as their publisher, Finsight Group Inc, issued
+it for its sibling packages. The portions that come from those packages remain under it.
+
+---
+
+Copyright (c) Finsight Group Inc
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is furnished
+to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.

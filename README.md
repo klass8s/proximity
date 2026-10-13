@@ -115,3 +115,8 @@ default), and autoconfigures any service implementing an interceptor interface â
 - Objects with **uninitialized `readonly` properties** cannot be proxied.
 
 See [State & identity](docs/guide/state-and-identity.md) for details.
+
+## Origins
+
+Proximity continues `dealroadshow/proximity` and `dealroadshow/proximity-bundle`, MIT-licensed
+packages merged here into one library with its Symfony bundle. Their notice is in [NOTICE](NOTICE).
