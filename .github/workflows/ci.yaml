@@ -1,0 +1,70 @@
+# Code style, static analysis and the suite. Every job runs on a GitHub-hosted runner with a
+# read-only GITHUB_TOKEN and names no stored secret, so a pull request from a fork runs exactly
+# what a branch runs.
+name: CI
+
+on:
+    push:
+        branches: [main]
+    pull_request:
+        branches: [main]
+
+permissions: {}
+
+concurrency:
+    group: ci-${{ github.event.pull_request.number || github.ref }}
+    cancel-in-progress: true
+
+jobs:
+    checks:
+        name: Code style and PHPStan
+        runs-on: ubuntu-latest
+        timeout-minutes: 15
+        permissions:
+            contents: read
+        steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+              with:
+                  persist-credentials: false
+            - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
+              with:
+                  php-version: '8.4'
+                  tools: composer
+                  coverage: none
+            - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+              with:
+                  path: ~/.cache/composer/files
+                  key: composer-${{ runner.os }}-${{ hashFiles('composer.json', 'tools/*/composer.lock') }}
+                  restore-keys: composer-${{ runner.os }}-
+            - run: composer update --no-interaction --no-progress
+            - run: composer install -d tools/php-cs-fixer --no-interaction --no-progress
+            - run: composer install -d tools/phpstan --no-interaction --no-progress
+            - run: composer cs:check
+            - run: composer phpstan
+
+    tests:
+        name: PHPUnit (PHP ${{ matrix.php }})
+        runs-on: ubuntu-latest
+        timeout-minutes: 15
+        permissions:
+            contents: read
+        strategy:
+            fail-fast: false
+            matrix:
+                php: ['8.4', '8.5']
+        steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+              with:
+                  persist-credentials: false
+            - uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
+              with:
+                  php-version: ${{ matrix.php }}
+                  tools: composer
+                  coverage: none
+            - uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+              with:
+                  path: ~/.cache/composer/files
+                  key: composer-${{ runner.os }}-php${{ matrix.php }}-${{ hashFiles('composer.json') }}
+                  restore-keys: composer-${{ runner.os }}-php${{ matrix.php }}-
+            - run: composer update --no-interaction --no-progress
+            - run: composer test

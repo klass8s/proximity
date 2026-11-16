@@ -1,0 +1,31 @@
+# release-please keeps one pull request open, "chore(main): release X.Y.Z", whose version and
+# changelog come from the Conventional Commits since the last release; merging it tags the
+# release and publishes its notes.
+#
+# It runs on pushes to main alone, with the workflow's own GITHUB_TOKEN: no pull request starts
+# it and it holds no stored secret. What that token creates starts no workflow, so the release
+# pull request's checks are started by hand (close and reopen it, or push to its branch).
+name: Release PR
+
+on:
+    push:
+        branches: [main]
+
+permissions: {}
+
+concurrency:
+    group: release-please
+    cancel-in-progress: false
+
+jobs:
+    release-please:
+        runs-on: ubuntu-latest
+        timeout-minutes: 10
+        permissions:
+            contents: write
+            pull-requests: write
+        steps:
+            - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+              with:
+                  config-file: release-please-config.json
+                  manifest-file: .release-please-manifest.json
