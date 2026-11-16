@@ -1,6 +1,12 @@
-# Create PHP proxy objects with ease
+# Proximity
 
-📖 **Full documentation lives in [`docs/`](docs/index.md)** (published on the Tequila Platform website).
+Create PHP proxy objects with ease. Proximity wraps an object you already constructed in a generated
+subclass that intercepts its method calls: before the body, to observe the call or replace it, and
+after it, to observe or replace the result. It is a small library for PHP 8.4 and later, with a
+Symfony bundle, and it handles what modern PHP objects carry: readonly classes, property hooks and
+typed properties.
+
+The documentation is in [`docs/`](docs/index.md).
 
 ## Motivation
 
@@ -11,6 +17,24 @@ such as the ability to create proxies from class instances with non-nullable
 typed properties. Unfortunately, this great library is not actively supported,
 therefore `tequila/proximity` tries to implement
 some of `ProxyManager`'s functionality.
+
+## Installation
+
+Proximity requires PHP 8.4 or later.
+
+```bash
+composer require tequila/proximity
+```
+
+The core classes need no framework. In a Symfony application, register the bundle in
+`config/bundles.php`:
+
+```php
+return [
+    // ...
+    Proximity\Bundle\ProximityBundle::class => ['all' => true],
+];
+```
 
 ## Usage
 
@@ -120,3 +144,13 @@ See [State & identity](docs/guide/state-and-identity.md) for details.
 
 Proximity continues `dealroadshow/proximity` and `dealroadshow/proximity-bundle`, MIT-licensed
 packages merged here into one library with its Symfony bundle. Their notice is in [NOTICE](NOTICE).
+
+## Contributing
+
+Bug reports and pull requests are welcome: [CONTRIBUTING.md](CONTRIBUTING.md) says what a pull
+request needs. Report a security vulnerability privately, as [SECURITY.md](SECURITY.md) describes.
+
+## License
+
+Proximity is released under the [MIT License](LICENSE). The portions that come from the packages
+named under *Origins* remain under their own MIT notice, in [NOTICE](NOTICE).
