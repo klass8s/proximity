@@ -1,10 +1,13 @@
 {
-    "name": "tequila/proximity",
+    "name": "klass8s/proximity",
     "description": "Create PHP proxy objects with ease",
     "type": "symfony-bundle",
-    "license": "proprietary",
-    "minimum-stability": "dev",
-    "prefer-stable": true,
+    "license": "MIT",
+    "support": {
+        "issues": "https://github.com/klass8s/proximity/issues",
+        "source": "https://github.com/klass8s/proximity",
+        "security": "https://github.com/klass8s/proximity/security/policy"
+    },
     "autoload": {
         "psr-4": {
             "Proximity\\": "src/"
@@ -24,6 +27,9 @@
         "symfony/dependency-injection": ">=8.0",
         "symfony/config": ">=8.0",
         "symfony/yaml": ">=8.0"
+    },
+    "replace": {
+        "tequila/proximity": "self.version"
     },
     "scripts": {
         "post-install-cmd": [

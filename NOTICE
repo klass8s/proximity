@@ -1,11 +1,11 @@
 # Third-party notices
 
-`tequila/proximity` continues two open-source packages published under the MIT License:
+`klass8s/proximity` continues two open-source packages published under the MIT License:
 
 - `dealroadshow/proximity`
 - `dealroadshow/proximity-bundle`
 
-`tequila/proximity` merged the library and its Symfony bundle into one package, renamed it and
+`klass8s/proximity` merged the library and its Symfony bundle into one package, renamed it and
 extended it. Both packages declared the MIT License in their `composer.json` and shipped no license
 file of their own; the notice below is the MIT License as their publisher, Finsight Group Inc, issued
 it for its sibling packages. The portions that come from those packages remain under it.
