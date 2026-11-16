@@ -20,5 +20,5 @@ and what happened (output, exception, generated code). -->
 
 **Versions**
 
-- `composer show tequila/proximity`:
+- `composer show klass8s/proximity`:
 - `php -v`:

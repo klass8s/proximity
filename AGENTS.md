@@ -11,7 +11,7 @@ CONTRIBUTING.md wins.
 - `composer test`, `composer cs:check` and `composer phpstan` pass (`composer install -d
   tools/php-cs-fixer` and `composer install -d tools/phpstan` install the tools once).
 - A change in behaviour comes with a test that fails without it; what it makes wrong in `README.md`
-  or `docs/` is corrected in the same pull request.
+  is corrected in the same pull request.
 - The title and every commit are [Conventional Commits](https://www.conventionalcommits.org)
   (`type(scope): subject`, `!` for a breaking change); each commit has a body that says what changed
   and why, and the title's release impact equals the highest of the commits'. Pull requests are

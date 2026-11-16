@@ -6,7 +6,7 @@ after it, to observe or replace the result. It is a small library for PHP 8.4 an
 Symfony bundle, and it handles what modern PHP objects carry: readonly classes, property hooks and
 typed properties.
 
-The documentation is in [`docs/`](docs/index.md).
+This README is the documentation: the API is small, and every part of it is shown below.
 
 ## Motivation
 
@@ -15,7 +15,7 @@ This library is inspired by the brilliant
 The mentioned library is lacking some features for now,
 such as the ability to create proxies from class instances with non-nullable
 typed properties. Unfortunately, this great library is not actively supported,
-therefore `tequila/proximity` tries to implement
+therefore `klass8s/proximity` tries to implement
 some of `ProxyManager`'s functionality.
 
 ## Installation
@@ -23,7 +23,7 @@ some of `ProxyManager`'s functionality.
 Proximity requires PHP 8.4 or later.
 
 ```bash
-composer require tequila/proximity
+composer require klass8s/proximity
 ```
 
 The core classes need no framework. In a Symfony application, register the bundle in
@@ -129,16 +129,16 @@ caller receives.
 
 The bundle (`Proximity\Bundle\ProximityBundle`) wires `ProxyFactory`, `ProxyGenerator`
 and both strategies (aliasing `ProxyStrategyInterface` to `EvaluatingStrategy` by
-default), and autoconfigures any service implementing an interceptor interface — see
-[Strategies & the bundle](docs/guide/strategies-and-bundle.md).
+default), and autoconfigures any service implementing an interceptor interface. `SaveToFileStrategy`
+writes into `%kernel.project_dir%/var/proxy` and the generated classes live in the namespace
+`Proximity\Proxy`; the environment variables `PROXIMITY_PROXY_CLASSES_DIR` and
+`PROXIMITY_PROXY_NAMESPACE` change either.
 
 ## Known limits
 
 - **By-reference parameters** lose their reference semantics through a proxy
   (arguments are forwarded by value).
 - Objects with **uninitialized `readonly` properties** cannot be proxied.
-
-See [State & identity](docs/guide/state-and-identity.md) for details.
 
 ## Origins
 

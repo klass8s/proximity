@@ -11,4 +11,4 @@ the highest of the commits' (CONTRIBUTING.md).
 
 - [ ] `composer test`, `composer cs:check` and `composer phpstan` pass
 - [ ] A change in behaviour has a test that fails without it
-- [ ] What the change makes wrong in the README or `docs/` is corrected here
+- [ ] What the change makes wrong in the README is corrected here

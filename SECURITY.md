@@ -7,7 +7,7 @@ private vulnerability reporting: the repository's **Security** tab, **Report a v
 (<https://github.com/klass8s/proximity/security/advisories/new>).
 
 Say what is affected (the generated proxy code, a proxy strategy, the bundle), the version
-(`composer show tequila/proximity`), and the class or the steps that show the problem. The fix is
+(`composer show klass8s/proximity`), and the class or the steps that show the problem. The fix is
 coordinated in the advisory, and the advisory is published with the release that carries it.
 
 ## Supported versions
