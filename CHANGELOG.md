@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.2.0](https://github.com/klass8s/proximity/compare/v0.1.0...v0.2.0) (2026-11-17)
+
+
+### ⚠ BREAKING CHANGES
+
+* publish Proximity as klass8s/proximity under the MIT License
+
+### Bug Fixes
+
+* **deps:** no known vulnerability ships in the locks ([da688df](https://github.com/klass8s/proximity/commit/da688df449b0068bff850bd3ed61db16991d10ec))
+
+
+### Build System
+
+* publish Proximity as klass8s/proximity under the MIT License ([96dcb55](https://github.com/klass8s/proximity/commit/96dcb5579d4204df155ce9ed7c45fc5eb9cd8c11))
+
 ## 0.1.0 (2026-09-26)
 
 
