@@ -26,11 +26,22 @@
         "symfony/yaml": ">=8.0"
     },
     "scripts": {
+        "post-install-cmd": [
+            "@tools:install"
+        ],
+        "post-update-cmd": [
+            "@tools:install"
+        ],
         "cs": "./tools/php-cs-fixer/vendor/bin/php-cs-fixer fix",
         "cs:check": "./tools/php-cs-fixer/vendor/bin/php-cs-fixer check",
         "phpstan": "./tools/phpstan/vendor/bin/phpstan analyse",
         "test": "./vendor/bin/phpunit",
+        "tools:install": "test \"$COMPOSER_DEV_MODE\" = 0 || (composer install -d tools/php-cs-fixer --no-interaction --no-progress && composer install -d tools/phpstan --no-interaction --no-progress)",
         "tools:update": "composer update -d tools/php-cs-fixer --no-scripts && composer update -d tools/phpstan --no-scripts"
+    },
+    "scripts-descriptions": {
+        "tools:install": "Install the dev tools (php-cs-fixer, phpstan) from their committed locks — runs after composer install/update, skipped under --no-dev",
+        "tools:update": "Update the dev tools to their newest versions and rewrite their locks (then re-run the checks and commit the locks)"
     },
     "require-dev": {
         "phpunit/phpunit": "^13.0"
